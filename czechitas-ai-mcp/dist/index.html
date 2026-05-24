@@ -1,0 +1,2048 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Czechitas · AI/MCP Workshop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   PALANTIR / TACTICAL DARK THEME — Czechitas AI/MCP Workshop
+   Edit slides directly in the <section class="slide"> blocks below.
+   Each slide is a self-contained block, find by `SLIDE NN` comment.
+   ============================================================ */
+
+:root {
+  --bg:        #0a0e14;
+  --bg-2:      #11161f;
+  --bg-3:      #1a212c;
+  --bg-code:   #050810;
+  --border:    #232c3a;
+  --border-2:  #2d3849;
+  --fg:        #eaf0f7;
+  --fg-2:      #b8c4d4;
+  --fg-3:      #7c8898;
+  --amber:     #ff9c4a;
+  --amber-d:   #663d1a;
+  --cyan:      #5bc0eb;
+  --green:     #4dd072;
+  --red:       #ff5252;
+  --yellow:    #ffd166;
+  --magenta:   #c77dff;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  font-size: 23px;
+  line-height: 1.55;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: var(--cyan); text-decoration: underline; }
+a:hover { color: var(--amber); }
+
+/* Tactical grid background */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
+  background-size: 80px 80px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Corner crosshair decorations */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 50px;
+  border: 1px solid rgba(255,156,74,0.08);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ============ STATUS BAR (top) ============ */
+#status-bar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 42px;
+  background: var(--bg-2);
+  border-bottom: 1px solid var(--border-2);
+  display: flex;
+  align-items: center;
+  padding: 0 26px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--fg);
+  z-index: 100;
+  gap: 26px;
+}
+#status-bar .brand    { color: var(--amber); font-weight: 700; }
+#status-bar .divider  { color: var(--fg-3); }
+#status-bar .right    { margin-left: auto; display: flex; gap: 18px; align-items: center; }
+#status-bar .counter  { color: var(--cyan); font-weight: 700; }
+#status-bar .dot      { width: 6px; height: 6px; background: var(--green); display: inline-block; border-radius: 50%; animation: pulse 2s ease-in-out infinite; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+/* ============ DECK + SLIDES ============ */
+#deck {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  padding-top: 42px;
+  z-index: 2;
+}
+
+.slide {
+  position: absolute;
+  inset: 42px 0 0 0;
+  display: none;
+  padding: 50px 80px 80px;
+  overflow-y: auto;
+  animation: slidein 0.25s ease-out;
+}
+.slide.active {
+  display: flex;
+  flex-direction: column;
+  justify-content: safe center;   /* `safe` = top-align when content overflows */
+}
+@keyframes slidein {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.slide-inner {
+  max-width: 1180px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* ============ TYPOGRAPHY ============ */
+.kicker {
+  display: block;            /* was inline-block — caused it to sit next to h2 */
+  width: fit-content;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.25em;
+  color: var(--amber);
+  margin-bottom: 20px;
+  padding: 4px 10px;
+  border: 1px solid var(--amber-d);
+  background: rgba(255,156,74,0.06);
+}
+.kicker.cyan { color: var(--cyan); border-color: rgba(91,192,235,0.4); background: rgba(91,192,235,0.06); }
+
+h1 {
+  font-size: 74px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  margin-bottom: 16px;
+}
+h2 {
+  font-size: 51px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin-bottom: 28px;
+  color: var(--fg);
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--amber);
+  display: inline-block;
+}
+h3 {
+  font-size: 28px;
+  font-weight: 600;
+  margin: 24px 0 10px;
+  color: var(--cyan);
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: -0.01em;
+}
+.slide p {
+  font-size: 25px;
+  margin-bottom: 14px;
+  color: var(--fg-2);
+}
+.slide p.lead { font-size: 30px; color: var(--fg); }
+.slide ul, .slide ol {
+  font-size: 24px;
+  margin: 14px 0 14px 30px;
+  color: var(--fg-2);
+}
+.slide li { margin-bottom: 8px; }
+strong { color: var(--fg); font-weight: 700; }
+em { color: var(--cyan); font-style: italic; }
+
+/* ============ CODE BLOCKS ============ */
+code {
+  font-family: 'JetBrains Mono', monospace;
+  background: var(--bg-3);
+  color: var(--amber);
+  padding: 2px 7px;
+  font-size: 0.88em;
+  border: 1px solid var(--border);
+}
+
+pre {
+  background: var(--bg-code);
+  border: 1px solid var(--border);
+  padding: 22px 26px 22px 26px;
+  margin: 18px 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 18px;
+  line-height: 1.5;
+  color: var(--fg-2);
+  overflow-x: auto;
+  position: relative;
+}
+pre::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--amber);
+}
+pre code {
+  background: transparent;
+  color: inherit;
+  border: 0;
+  padding: 0;
+  font-size: inherit;
+}
+pre .c { color: var(--fg-3); }       /* comment */
+pre .s { color: var(--green); }      /* string */
+pre .k { color: var(--magenta); }    /* keyword */
+pre .n { color: var(--yellow); }     /* number */
+pre .t { color: var(--cyan); }       /* type/builtin */
+pre .a { color: var(--amber); }      /* attr */
+
+/* ============ TABLES ============ */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid var(--border);
+  margin: 18px 0;
+  font-size: 20px;
+  background: var(--bg-2);
+}
+th {
+  background: var(--bg-3);
+  border-bottom: 2px solid var(--amber);
+  padding: 14px 18px;
+  text-align: left;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 14px;
+  color: var(--amber);
+  font-weight: 600;
+  font-family: 'JetBrains Mono', monospace;
+}
+td {
+  padding: 14px 18px;
+  border-top: 1px solid var(--border);
+  color: var(--fg-2);
+  vertical-align: top;
+}
+tr:hover td { background: rgba(255,156,74,0.04); }
+td code, th code { font-size: 0.95em; }
+
+/* ============ BLOCKQUOTE / CALLOUTS ============ */
+blockquote {
+  border-left: 3px solid var(--amber);
+  padding: 14px 24px;
+  margin: 20px 0;
+  color: var(--fg-2);
+  font-style: italic;
+  background: rgba(255,156,74,0.05);
+  font-size: 23px;
+}
+
+.callout {
+  border: 1px solid var(--amber);
+  background: rgba(255,156,74,0.06);
+  padding: 18px 24px;
+  margin: 20px 0;
+  font-size: 25px;
+}
+.callout.cyan   { border-color: var(--cyan); background: rgba(91,192,235,0.06); }
+.callout.green  { border-color: var(--green); background: rgba(77,208,114,0.06); }
+.callout.red    { border-color: var(--red); background: rgba(255,82,82,0.06); }
+
+.danger {
+  border-left: 4px solid var(--red);
+  background: rgba(255,82,82,0.06);
+  padding: 14px 22px;
+  margin: 16px 0;
+}
+.success {
+  border-left: 4px solid var(--green);
+  background: rgba(77,208,114,0.06);
+  padding: 14px 22px;
+  margin: 16px 0;
+}
+.warning {
+  border-left: 4px solid var(--yellow);
+  background: rgba(255,209,102,0.06);
+  padding: 14px 22px;
+  margin: 16px 0;
+}
+
+/* ============ SECTION DIVIDER SLIDES ============ */
+.slide.section { align-items: center; text-align: center; justify-content: center; }
+.slide.section .slide-inner { text-align: center; }
+.slide.section .act-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 16px;
+  letter-spacing: 0.4em;
+  color: var(--cyan);
+  margin-bottom: 24px;
+  text-transform: uppercase;
+}
+.slide.section h1 {
+  font-size: 115px;
+  color: var(--fg);
+  letter-spacing: -0.03em;
+}
+.slide.section .subtitle {
+  font-size: 28px;
+  color: var(--fg-3);
+  margin-top: 16px;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.1em;
+}
+
+/* ============ TITLE SLIDE ============ */
+.slide.title { justify-content: center; }
+.slide.title h1 { font-size: 101px; line-height: 1; margin-bottom: 32px; }
+.slide.title .subtitle {
+  font-size: 32px;
+  color: var(--cyan);
+  margin-bottom: 60px;
+  font-weight: 500;
+}
+.slide.title .meta {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 18px;
+  color: var(--fg-3);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  border-top: 1px solid var(--border);
+  padding-top: 20px;
+  display: inline-block;
+  padding-right: 60px;
+}
+.slide.title .meta .author { color: var(--amber); font-weight: 600; }
+
+/* ============ FLOW / DIAGRAMS ============ */
+.flow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  margin: 30px 0;
+  flex-wrap: wrap;
+}
+.flow-step {
+  border: 1px solid var(--border-2);
+  background: var(--bg-2);
+  padding: 14px 22px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 17px;
+  text-align: center;
+  min-width: 130px;
+  color: var(--fg);
+}
+.flow-step.amber { border-color: var(--amber); color: var(--amber); }
+.flow-step.cyan  { border-color: var(--cyan); color: var(--cyan); }
+.flow-step.green { border-color: var(--green); color: var(--green); }
+.flow-arrow {
+  color: var(--amber);
+  font-size: 28px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* ============ CARDS GRID ============ */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 18px;
+  margin: 22px 0;
+}
+.card {
+  border: 1px solid var(--border);
+  background: var(--bg-2);
+  padding: 18px 22px;
+}
+.card .label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 16px;          /* +20% from 13 */
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--amber);
+  margin-bottom: 10px;
+}
+.card .value {
+  font-size: 24px;          /* +20% from 20 */
+  color: var(--fg);
+}
+
+/* Two-column grid */
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  align-items: start;
+}
+
+/* Status code categories */
+.status-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+  font-family: 'JetBrains Mono', monospace;
+}
+.status-row:last-child { border-bottom: 0; }
+.status-row .code {
+  font-size: 32px;
+  font-weight: 700;
+  min-width: 80px;
+  padding: 6px 12px;
+  border: 1px solid;
+  text-align: center;
+  background: var(--bg-2);
+}
+.status-row .code.s2 { color: var(--green); border-color: var(--green); }
+.status-row .code.s3 { color: var(--cyan);  border-color: var(--cyan); }
+.status-row .code.s4 { color: var(--red);   border-color: var(--red); }
+.status-row .code.s5 { color: var(--magenta); border-color: var(--magenta); }
+.status-row .desc { color: var(--fg-2); font-size: 20px; }
+
+/* SVG defaults */
+svg.diagram { display: block; margin: 24px auto; max-width: 100%; }
+svg text {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  fill: var(--fg-2);
+  font-size: 15px;
+}
+svg .label-amber { fill: var(--amber); font-weight: 600; }
+svg .label-cyan  { fill: var(--cyan); font-weight: 600; }
+svg .label-mute  { fill: var(--fg-3); }
+svg rect.box, svg rect.node {
+  fill: var(--bg-2);
+  stroke: var(--border-2);
+  stroke-width: 1;
+}
+svg rect.amber  { stroke: var(--amber); }
+svg rect.cyan   { stroke: var(--cyan); }
+svg rect.green  { stroke: var(--green); }
+svg rect.red    { stroke: var(--red); }
+svg line.arrow, svg path.arrow {
+  stroke: var(--amber);
+  stroke-width: 1.5;
+  fill: none;
+}
+svg line.dim, svg path.dim { stroke: var(--border-2); stroke-width: 1; fill: none; }
+
+/* Author / sign-off slide */
+.signoff {
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--fg-3);
+  font-size: 18px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.signoff .name { font-size: 32px; color: var(--amber); margin-bottom: 12px; font-weight: 600; }
+
+/* ============ PROGRESS BAR ============ */
+#progress {
+  position: fixed;
+  bottom: 0; left: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--amber), var(--cyan));
+  width: 0%;
+  transition: width 0.3s ease;
+  z-index: 100;
+}
+
+/* ============ NAV HINT ============ */
+#nav-hint {
+  position: fixed;
+  bottom: 14px; right: 24px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--fg-3);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  z-index: 100;
+  pointer-events: none;
+}
+#nav-hint kbd {
+  display: inline-block;
+  border: 1px solid var(--border-2);
+  background: var(--bg-2);
+  padding: 2px 6px;
+  margin: 0 2px;
+  color: var(--amber);
+  font-size: 12px;
+}
+
+/* ============ RESPONSIVE TWEAKS ============ */
+@media (max-width: 1024px) {
+  .slide { padding: 30px 40px 60px; }
+  h1 { font-size: 55px; }
+  h2 { font-size: 39px; }
+  .slide.section h1 { font-size: 69px; }
+  .slide.title h1 { font-size: 64px; }
+  .slide p, .slide ul, .slide ol { font-size: 21px; }
+  pre { font-size: 15px; }
+}
+
+/* URL anatomy diagram (HTML+CSS, replaces fragile SVG) */
+.url-diagram {
+  margin: 30px 0 24px;
+  padding: 28px 32px;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  overflow-x: auto;
+}
+.url-line {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 30px;
+  white-space: nowrap;
+  line-height: 1;
+  padding-bottom: 4px;
+}
+.url-line .url-part {
+  border-bottom: 3px solid currentColor;
+  padding-bottom: 6px;
+}
+.url-line .url-sep   { color: var(--fg-3); }
+.url-line .scheme    { color: var(--cyan); }
+.url-line .host      { color: var(--amber); }
+.url-line .path      { color: var(--green); }
+.url-line .query     { color: var(--magenta); }
+
+.url-legend {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px 36px;
+  margin: 24px 0;
+}
+.url-legend .legend-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  font-size: 20px;
+  color: var(--fg-2);
+}
+.url-legend .swatch {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  margin-top: 8px;
+}
+.url-legend .swatch.scheme { background: var(--cyan); }
+.url-legend .swatch.host   { background: var(--amber); }
+.url-legend .swatch.path   { background: var(--green); }
+.url-legend .swatch.query  { background: var(--magenta); }
+.url-legend strong { color: var(--fg); }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border-2); }
+::-webkit-scrollbar-thumb:hover { background: var(--amber); }
+</style>
+</head>
+<body>
+
+<!-- ============ STATUS BAR ============ -->
+<header id="status-bar">
+  <span class="brand">CZECHITAS</span>
+  <span class="divider">//</span>
+  <span>AI/MCP/EVALS WORKSHOP</span>
+  <span class="divider">//</span>
+  <span>26-27 MAY 2026</span>
+  <div class="right">
+    <span class="dot"></span>
+    <span class="counter" id="counter">001 / 001</span>
+  </div>
+</header>
+
+<!-- ============ DECK ============ -->
+<main id="deck">
+
+<!-- ─────────────────────────────────────────────────────────
+     SLIDE 01 · Title
+     ───────────────────────────────────────────────────────── -->
+<section class="slide title">
+  <div class="slide-inner">
+    <span class="kicker">🛰️ TRANSMISSION 001 — BRIEFING</span>
+    <h1>APIs, agenti<br>a SQL</h1>
+    <div class="subtitle">2-denní workshop — od HTTP requestu k automatické evaluaci</div>
+    <div class="meta">
+      <div class="author">Jakub Kopecký</div>
+      <div>Engineer · Apify</div>
+      <div>26.–27. května 2026 · 18:00–20:00</div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────────
+     SLIDE 02 · Agenda
+     ───────────────────────────────────────────────────────── -->
+<section class="slide">
+  <div class="slide-inner">
+    <h2>📋 Co nás čeká</h2>
+    <div class="two-col">
+      <div>
+        <h3>📅 Den 1 — API + agenti</h3>
+        <ol>
+          <li>Co je <strong>API</strong> — anatomie, metody, JSON, první call v Pythonu</li>
+          <li><strong>LLM a coding agent</strong> — co to je, jak se liší od chatu</li>
+          <li><strong>OpenCode hands-on</strong> — AGENTS.md, skills</li>
+          <li><strong>Security a use cases</strong> — klíče, rizika, domácí úkol</li>
+        </ol>
+      </div>
+      <div>
+        <h3>📅 Den 2 — MCP + Evals</h3>
+        <ol>
+          <li>Co je <strong>MCP</strong> ("USB-C pro AI")</li>
+          <li><strong>Snowflake MCP</strong> hands-on</li>
+          <li><strong>Report</strong> z přirozeného jazyka</li>
+          <li><strong>SQL Quality Judge</strong> — automatická evaluace Text-to-SQL</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────────
+     SLIDE 03 · Day 1 section divider
+     ───────────────────────────────────────────────────────── -->
+<section class="slide section">
+  <div class="slide-inner">
+    <div class="act-label">▌ DAY 01 · OPERATION BRIEFING</div>
+    <h1>API + agenti 🌐</h1>
+    <div class="subtitle">jak weby mluví mezi sebou → jak na to napojit AI</div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────────
+     SLIDE 03b · Co je internet? (playground)
+     ───────────────────────────────────────────────────────── -->
+<section class="slide">
+  <div class="slide-inner">
+    <span class="kicker">🌐 PLAYGROUND</span>
+    <h2>Co je internet?</h2>
+    <p class="lead">Síť propojených počítačů.</p>
+
+    <div class="flow">
+      <div class="flow-step">🖥️ <strong>Tvůj počítač</strong></div>
+      <div class="flow-arrow">↔</div>
+      <div class="flow-step cyan">🌐 <strong>Internet</strong></div>
+      <div class="flow-arrow">↔</div>
+      <div class="flow-step amber">🏢 <strong>Server</strong></div>
+    </div>
+
+    <p>Tvůj browser, mobil, Snowflake server, ChatGPT — všechno běží jako počítače propojené sítí.</p>
+    <p>Kabely · Wi-Fi · satelity. Pod tím vším: miliardy zpráv letících mezi mašinami.</p>
+
+    <div class="callout">Tohle je playground, kde se odehraje celý workshop.</div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────────
+     SLIDE 03c · Klient & Server (two roles)
+     ───────────────────────────────────────────────────────── -->
+<section class="slide">
+  <div class="slide-inner">
+    <span class="kicker">🎭 DVĚ ROLE</span>
+    <h2>Klient &amp; Server</h2>
+    <p>Na internetu existují <strong>dvě role</strong>:</p>
+
+    <div class="two-col">
+      <div class="callout">
+        <strong>🧑 KLIENT</strong> — kdo se ptá<br>
+        <span style="color:var(--fg-3)">browser · mobilní apka · Python skript · AI agent</span>
+      </div>
+      <div class="callout cyan">
+        <strong>🏢 SERVER</strong> — kdo má data a logiku<br>
+        <span style="color:var(--fg-3)">Snowflake · GitHub · OpenAI · czechitas.cz</span>
+      </div>
+    </div>
+
+    <p style="text-align:center;">Klient pošle <strong>dotaz</strong> → server vrátí <strong>odpověď</strong>.</p>
+
+    <div class="callout">99 % všeho, co se na internetu děje. I tenhle workshop.</div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────────
+     SLIDE 03d · Co se stane, když klikneš na link
+     ───────────────────────────────────────────────────────── -->
+<section class="slide">
+  <div class="slide-inner">
+    <span class="kicker">🖱️ ZOOM IN</span>
+    <h2>Co se stane, když klikneš na link</h2>
+
+    <p>Klikneš na <code>https://czechitas.cz</code>:</p>
+
+    <ol>
+      <li>🖥️ Browser (<strong>KLIENT</strong>) pošle zprávu serveru</li>
+      <li>🌐 Zpráva proletí Wi-Fi → router → ISP → kabely pod oceánem → datacentrum</li>
+      <li>🏢 <strong>SERVER</strong> zprávu přečte → pošle zpět HTML</li>
+      <li>🖥️ Browser HTML zobrazí</li>
+    </ol>
+
+    <p>Trvá to ~100 ms. Děje se to <strong>miliardkrát za sekundu</strong>.</p>
+
+    <div class="callout cyan">Aby si <strong>KLIENT a SERVER</strong> rozuměli, potřebují domluvený jazyk. → To je <strong>API</strong>.</div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────────
+     SLIDE 04 · Co je API? (waiter analogy + diagram)
+     ───────────────────────────────────────────────────────── -->
+<section class="slide">
+  <div class="slide-inner">
+    <span class="kicker">🤝 PROSTŘEDNÍK</span>
+    <h2>Co je API?</h2>
+    <p class="lead">API = prostředník mezi klientem a serverem.</p>
+    <p>Klient nemluví se serverem přímo. Mluví s API — to ví, jak server používat a co s ním lze.</p>
+
+    <svg class="diagram" viewBox="0 0 900 200" width="900">
+      <!-- You -->
+      <rect class="box amber" x="20" y="60" width="180" height="80" />
+      <text x="110" y="95" text-anchor="middle" class="label-amber" font-size="18">👤 TY</text>
+      <text x="110" y="120" text-anchor="middle" font-size="14">klient</text>
+
+      <!-- arrow 1 -->
+      <text x="280" y="85" text-anchor="middle" font-size="13" class="label-mute">request</text>
+      <line class="arrow" x1="210" y1="100" x2="350" y2="100" marker-end="url(#arr)" />
+
+      <!-- Waiter / API -->
+      <rect class="box cyan" x="360" y="60" width="180" height="80" />
+      <text x="450" y="95" text-anchor="middle" class="label-cyan" font-size="18">🤵 ČÍŠNÍK</text>
+      <text x="450" y="120" text-anchor="middle" font-size="14">API</text>
+
+      <!-- arrow 2 -->
+      <text x="620" y="85" text-anchor="middle" font-size="13" class="label-mute">objednávka</text>
+      <line class="arrow" x1="550" y1="100" x2="690" y2="100" marker-end="url(#arr)" />
+
+      <!-- Kitchen / Server -->
+      <rect class="box" x="700" y="60" width="180" height="80" />
+      <text x="790" y="95" text-anchor="middle" class="label-amber" font-size="18">🍳 KUCHYNĚ</text>
+      <text x="790" y="120" text-anchor="middle" font-size="14">server</text>
+
+      <!-- Return arrow -->
+      <text x="450" y="175" text-anchor="middle" font-size="13" class="label-mute">← talíř (response) ←</text>
+
+      <defs>
+        <marker id="arr" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+          <polygon points="0 0, 9 3, 0 6" fill="#ff9c4a"/>
+        </marker>
+      </defs>
+    </svg>
+
+    <p>🍽️ Jako <strong>číšník v restauraci</strong>. Ty jen řekneš co chceš, on se postará o zbytek.</p>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────────
+     SLIDE 05 · Proč tě to zajímá
+     ───────────────────────────────────────────────────────── -->
+<section class="slide">
+  <div class="slide-inner">
+    <span class="kicker">🎯 MOTIVACE</span>
+    <h2>Proč tě to zajímá?</h2>
+    <div class="cards">
+      <div class="card">
+        <div class="label">01</div>
+        <div class="value"><strong>Automatizace</strong><br>opakované úkoly už nemusíš dělat ručně</div>
+      </div>
+      <div class="card">
+        <div class="label">02</div>
+        <div class="value"><strong>Data</strong><br>ke kterým se jinak nedostaneš</div>
+      </div>
+      <div class="card">
+        <div class="label">03</div>
+        <div class="value"><strong>Integrace</strong><br>tvoje skripty mluví s celým světem</div>
+      </div>
+    </div>
+    <p style="margin-top:24px;font-size: 28px;"><strong>Všechno</strong> je dnes API. Snowflake · GitHub · Slack · Mapy.cz · Stripe · …</p>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────────
+     SLIDE 06 · Druhy API
+     ───────────────────────────────────────────────────────── -->
+<section class="slide">
+  <div class="slide-inner">
+    <span class="kicker">📡 PROTOKOLY</span>
+    <h2>Druhy API</h2>
+    <table>
+      <thead><tr><th>Typ</th><th>Použití</th><th>Stav</th></tr></thead>
+      <tbody>
+        <tr><td><strong>REST / HTTP</strong></td><td>weby, mobilní apky, většina veřejných API</td><td style="color:var(--green)">~90 % všeho</td></tr>
+        <tr><td><strong>SOAP</strong></td><td>starší enterprise systémy (banky, telco)</td><td style="color:var(--yellow)">legacy, ale běží</td></tr>
+        <tr><td><strong>GraphQL</strong></td><td>komplexní data, klient si vybírá co chce</td><td style="color:var(--cyan)">roste (GitHub, Shopify)</td></tr>
+        <tr><td><strong>gRPC</strong></td><td>mikroslužby, vysoký výkon</td><td style="color:var(--cyan)">interní, cloud</td></tr>
+        <tr><td><strong>WebSocket</strong></td><td>live data, chat, real-time push</td><td style="color:var(--fg-3)">doplněk k HTTP</td></tr>
+      </tbody>
+    </table>
+    <div class="callout cyan">V tomhle workshopu řešíme <strong>HTTP/REST</strong>.<br>Když se naučíš tohle, ostatní pochopíš za odpoledne.</div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────────
+     SLIDE 06b · Co je HTTP? (history + scope)
+     ───────────────────────────────────────────────────────── -->
+<section class="slide">
+  <div class="slide-inner">
+    <span class="kicker">📜 1991 · PROTOCOL</span>
+    <h2>Co je HTTP?</h2>
+    <p class="lead"><strong>H</strong>yper<strong>T</strong>ext <strong>T</strong>ransfer <strong>P</strong>rotocol</p>
+
+    <div class="callout">
+      <strong>1991</strong> · Tim Berners-Lee · CERN<br>
+      Vznikl, aby si vědci mohli posílat <strong>dokumenty</strong> po síti.
+    </div>
+
+    <p>Dnes na něm jede skoro všechno:</p>
+    <ul>
+      <li>🌐 Weby a mobilní apky</li>
+      <li>🔗 API ke každé službě</li>
+      <li>🤖 AI agenti a MCP servery</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────────
+     SLIDE 06c · HTTP vs HTTPS
+     ───────────────────────────────────────────────────────── -->
+<section class="slide">
+  <div class="slide-inner">
+    <span class="kicker">🔒 SECURITY</span>
+    <h2>HTTP vs HTTPS</h2>
+
+    <div class="two-col">
+      <div class="danger">
+        <strong>🔓 http://</strong><br>
+        Čte to každý router cestou.<br>
+        Browsery dnes označují jako <strong>„Not secure“</strong>.
+      </div>
+      <div class="success">
+        <strong>🔒 https://</strong><br>
+        Šifrované TLS spojení.<br>
+        = HTTP + zámek.
+      </div>
+    </div>
+
+    <div class="callout cyan"><strong>V praxi: vždycky https. http nikdy.</strong><br>ChatGPT, banking, Snowflake — všechno https.</div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────────
+     SLIDE 07 · Anatomie requestu (annotated)
+     ───────────────────────────────────────────────────────── -->
+<section class="slide">
+  <div class="slide-inner">
+    <span class="kicker">🔬 STRUKTURA</span>
+    <h2>Anatomie requestu</h2>
+<pre><span class="k">POST</span> /api/v2/statements <span class="t">HTTP/1.1</span>          <span class="c">← start line</span>
+<span class="a">Host</span>: czechitas.snowflakecomputing.com    <span class="c">← tvoje Snowflake URL</span>
+<span class="a">Authorization</span>: Bearer <span class="s">eyJraWQ...</span>          <span class="c">← API klíč (JWT)</span>
+<span class="a">Content-Type</span>: application/json            <span class="c">← formát body</span>
+
+{                                          <span class="c">← body (jen POST/PUT/PATCH)</span>
+  <span class="a">"statement"</span>: <span class="s">"SELECT COUNT(*) FROM customers"</span>,
+  <span class="a">"warehouse"</span>: <span class="s">"MY_WH"</span>
+}</pre>
+    <div class="cards">
+      <div class="card"><div class="label">▌ Start line</div><div class="value">co chci a kde<br><code>POST /api/v2/statements</code></div></div>
+      <div class="card"><div class="label">▌ Headers</div><div class="value">metadata: auth, content-type, …</div></div>
+      <div class="card"><div class="label">▌ Body</div><div class="value">data, která posílám<br>u <code>GET</code> nikdy</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────────
+     SLIDE 08 · Co je JSON?
+     ───────────────────────────────────────────────────────── -->
+<section class="slide">
+  <div class="slide-inner">
+    <span class="kicker">📦 DATA FORMAT</span>
+    <h2>Co je JSON?</h2>
+    <p>Ten <code>{...}</code> v body je <strong>JSON</strong> — textový formát pro data.<br>Vzdáleně příbuzný Python dictu.</p>
+<pre><span class="k">{</span>
+  <span class="a">"name"</span>: <span class="s">"Anna"</span>,
+  <span class="a">"age"</span>: <span class="n">28</span>,
+  <span class="a">"skills"</span>: [<span class="s">"Python"</span>, <span class="s">"SQL"</span>],
+  <span class="a">"active"</span>: <span class="t">true</span>
+<span class="k">}</span></pre>
+    <ul>
+      <li><strong>Klíče</strong> vždycky v uvozovkách</li>
+      <li><strong>Hodnoty</strong>: text, číslo, <code>true</code>/<code>false</code>, <code>null</code>, list, další dict</li>
+      <li><strong>Vnořování</strong> — list v dictu, dict v listu, jak chceš</li>
+    </ul>
+    <div class="callout">API ho používají <strong>všude</strong>. V Pythonu <code>resp.json()</code> z něj udělá dict. 🐍</div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────────
+     SLIDE 09 · URL z čeho se skládá (annotated SVG)
+     ───────────────────────────────────────────────────────── -->
+<section class="slide">
+  <div class="slide-inner">
+    <span class="kicker">🔗 URL ANATOMY</span>
+    <h2>URL — z čeho se skládá</h2>
+
+    <div class="url-diagram">
+      <div class="url-line"><span class="url-part scheme">https</span><span class="url-sep">://</span><span class="url-part host">api.example.com</span><span class="url-part path">/v1/users</span><span class="url-part query">?role=admin&amp;limit=10</span></div>
+    </div>
+
+    <div class="url-legend">
+      <div class="legend-item"><span class="swatch scheme"></span><div><strong>scheme</strong> — protokol, v praxi vždycky <code>https</code></div></div>
+      <div class="legend-item"><span class="swatch host"></span><div><strong>host</strong> — doménové jméno serveru</div></div>
+      <div class="legend-item"><span class="swatch path"></span><div><strong>path</strong> — cesta k resource (<code>/v1/</code> = verze API)</div></div>
+      <div class="legend-item"><span class="swatch query"></span><div><strong>query</strong> — parametry za <code>?</code> ve formátu <code>key=value</code></div></div>
+    </div>
+
+    <div class="callout">V Pythonu <code>params={"role": "admin", "limit": 10}</code> to složí za tebe.</div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────────
+     SLIDE 10 · HTTP metody (CRUD)
+     ───────────────────────────────────────────────────────── -->
+<section class="slide">
+  <div class="slide-inner">
+    <span class="kicker">⚙️ METHODS</span>
+    <h2>HTTP metody</h2>
+    <table>
+      <thead><tr><th>Metoda</th><th>CRUD</th><th>Co dělá</th><th>Body?</th><th>Příklad</th></tr></thead>
+      <tbody>
+        <tr><td><code>GET</code></td><td style="color:var(--cyan)"><strong>R</strong>ead</td><td>čte data</td><td style="color:var(--red)">ne</td><td>Načti seznam uživatelů</td></tr>
+        <tr><td><code>POST</code></td><td style="color:var(--green)"><strong>C</strong>reate</td><td>vytváří</td><td style="color:var(--green)">ano</td><td>Zaregistruj uživatele</td></tr>
+        <tr><td><code>PUT</code></td><td style="color:var(--amber)"><strong>U</strong>pdate</td><td>nahradí celé</td><td style="color:var(--green)">ano</td><td>Přepiš celý profil</td></tr>
+        <tr><td><code>PATCH</code></td><td style="color:var(--amber)"><strong>U</strong>pdate</td><td>upraví část</td><td style="color:var(--green)">ano</td><td>Změň jen email</td></tr>
+        <tr><td><code>DELETE</code></td><td style="color:var(--red)"><strong>D</strong>elete</td><td>smaže</td><td style="color:var(--red)">ne</td><td>Zruš účet</td></tr>
+      </tbody>
+    </table>
+    <div class="callout cyan">Mapuje se <strong>1:1 na SQL CRUD</strong> — co už znáš ze Snowflake. 🎯</div>
+    <p style="color:var(--fg-3);font-size: 21px;">V praxi: 90 % requestů je <code>GET</code> + <code>POST</code>.</p>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────────
+     SLIDE 11 · Status kódy (color coded)
+     ───────────────────────────────────────────────────────── -->
+<section class="slide">
+  <div class="slide-inner">
+    <span class="kicker">📟 STATUS CODES</span>
+    <h2>Status kódy</h2>
+    <p>První číslo říká kategorii:</p>
+    <div style="margin:20px 0;">
+      <div class="status-row">
+        <div class="code s2">2xx</div>
+        <div class="desc">✅ <strong>OK</strong> — <code>200</code> OK · <code>201</code> Created · <code>204</code> No Content</div>
+      </div>
+      <div class="status-row">
+        <div class="code s3">3xx</div>
+        <div class="desc">↪️ <strong>Přesměrování</strong> — <code>301</code> Moved · <code>304</code> Not Modified</div>
+      </div>
+      <div class="status-row">
+        <div class="code s4">4xx</div>
+        <div class="desc">❌ <strong>Tvoje chyba</strong> — <code>400</code> Bad Request · <code>401</code> Unauthorized · <code>403</code> Forbidden · <code>404</code> Not Found · <code>429</code> Too Many Requests</div>
+      </div>
+      <div class="status-row">
+        <div class="code s5">5xx</div>
+        <div class="desc">💥 <strong>Chyba serveru</strong> — <code>500</code> Internal · <code>502</code> Bad Gateway · <code>503</code> Unavailable</div>
+      </div>
+    </div>
+    <div class="callout"><strong>4xx oprav ty · 5xx napiš adminovi.</strong></div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────────
+     SLIDE 11b · Status code historky
+     ───────────────────────────────────────────────────────── -->
+<section class="slide">
+  <div class="slide-inner">
+    <span class="kicker">📖 BACKSTORIES</span>
+    <h2>Status code historky</h2>
+
+    <div class="callout">
+      <strong>🫖 418 · I'm a teapot</strong><br>
+      Z roku 1998 — dubnový žert. Server: <em>„Jsem konvice, nedělám kafe.“</em><br>
+      <span style="color:var(--fg-3)">Cloudflare ho dnes používá na blokované requesty.</span>
+    </div>
+
+    <div class="callout">
+      <strong>🚦 429 · Too Many Requests</strong><br>
+      „Zpomal!“ Když píšeš smyčku bez <code>sleep()</code>.
+    </div>
+
+    <div class="callout">
+      <strong>💥 503 · Service Unavailable</strong><br>
+      „Jsme rozbití, zkus za chvíli.“ Black Friday classic.
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────────
+     SLIDE 12 · HTTP v akci (full example)
+     ───────────────────────────────────────────────────────── -->
+<section class="slide">
+  <div class="slide-inner">
+    <span class="kicker">🌦️ POČASÍ V PRAZE</span>
+    <h2>HTTP v akci</h2>
+    <h3>▸ Request</h3>
+<pre><span class="k">GET</span> /v1/forecast?<span class="a">latitude</span>=<span class="n">50.08</span>&amp;<span class="a">longitude</span>=<span class="n">14.42</span>&amp;<span class="a">current</span>=temperature_2m <span class="t">HTTP/1.1</span>
+<span class="a">Host</span>: api.open-meteo.com</pre>
+    <h3>▸ Response</h3>
+<pre><span class="t">HTTP/1.1 200 OK</span>
+<span class="a">Content-Type</span>: application/json
+
+{
+  <span class="a">"latitude"</span>: <span class="n">50.08</span>,
+  <span class="a">"longitude"</span>: <span class="n">14.42</span>,
+  <span class="a">"current"</span>: {
+    <span class="a">"time"</span>: <span class="s">"2026-05-26T18:00"</span>,
+    <span class="a">"temperature_2m"</span>: <span class="n">18.3</span>
+  }
+}</pre>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────────
+     SLIDE 13 · Setup
+     ───────────────────────────────────────────────────────── -->
+<section class="slide">
+  <div class="slide-inner">
+    <span class="kicker">⚙️ SETUP</span>
+    <h2>Setup</h2>
+    <p>Potřebuješ Python + jednu knihovnu:</p>
+<pre>$ pip install --user requests</pre>
+    <p><code>--user</code> = nainstaluje do tvého home adresáře, ne do systému.</p>
+
+    <div class="callout cyan">
+      <strong>🛟 Backup: Google Colab</strong><br>
+      <code>https://colab.research.google.com</code><br>
+      Otevřeš v prohlížeči. <code>requests</code> je předinstalovaný. Skript spustíš tlačítkem ▶.
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────────
+     SLIDE 14 · Tvůj první API call
+     ───────────────────────────────────────────────────────── -->
+<section class="slide">
+  <div class="slide-inner">
+    <span class="kicker">🐍 PYTHON</span>
+    <h2>Tvůj první API call</h2>
+<pre><span class="k">import</span> requests
+
+resp = requests.<span class="t">get</span>(
+    <span class="s">"https://api.open-meteo.com/v1/forecast"</span>,
+    params={
+        <span class="a">"latitude"</span>:  <span class="n">50.08</span>,  <span class="c"># Praha</span>
+        <span class="a">"longitude"</span>: <span class="n">14.42</span>,
+        <span class="a">"current"</span>:   <span class="s">"temperature_2m,wind_speed_10m"</span>,
+    },
+)
+
+<span class="t">print</span>(resp.<span class="t">json</span>())
+<span class="c"># {'current': {'temperature_2m': 18.3, 'wind_speed_10m': 12.4}, ...}</span></pre>
+    <div class="callout">💡 Stejně funguje <strong>browser</strong> — dostaneš stejný JSON.<br>Browser pošle <code>GET</code> request, stejně jako <code>requests.get</code>.</div>
+    <p style="font-family:'JetBrains Mono',monospace;font-size: 16px;color:var(--cyan);word-break:break-all;">
+      https://api.open-meteo.com/v1/forecast?latitude=50.08&amp;longitude=14.42&amp;current=temperature_2m,wind_speed_10m
+    </p>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────────
+     SLIDE 14b · Free APIs na hraní
+     ───────────────────────────────────────────────────────── -->
+<section class="slide">
+  <div class="slide-inner">
+    <span class="kicker">🎮 PLAYGROUND</span>
+    <h2>Free APIs na hraní</h2>
+    <p>Žádná registrace, žádný klíč. Zkus doma:</p>
+
+    <div class="cards">
+      <div class="card"><div class="label">🌤️ POČASÍ</div><div class="value">open-meteo.com</div></div>
+      <div class="card"><div class="label">🐱 KOČKA</div><div class="value">thecatapi.com</div></div>
+      <div class="card"><div class="label">🎴 KARTY</div><div class="value">deckofcardsapi.com</div></div>
+      <div class="card"><div class="label">🌍 ZEMĚ</div><div class="value">restcountries.com</div></div>
+    </div>
+
+    <div class="callout cyan"><strong>Začni s tím, co tě baví.</strong> Princip je všude stejný.</div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────────
+     SLIDE 15 · Co hlídat
+     ───────────────────────────────────────────────────────── -->
+<section class="slide">
+  <div class="slide-inner">
+    <span class="kicker">⚠️ GOTCHAS</span>
+    <h2>Co hlídat</h2>
+    <div class="cards">
+      <div class="card">
+        <div class="label">🚦 RATE LIMITING</div>
+        <div class="value">kolik requestů za minutu/hodinu — jinak dostaneš <code>429</code></div>
+      </div>
+      <div class="card">
+        <div class="label">⏱ TIMEOUT</div>
+        <div class="value"><code>requests.get(..., timeout=10)</code> — nikdy bez něj</div>
+      </div>
+      <div class="card">
+        <div class="label">📖 DOKUMENTACE</div>
+        <div class="value">jaké endpointy, parametry, formát dat — vždycky čti</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────────
+     SLIDE 17 · Agenti section divider
+     ───────────────────────────────────────────────────────── -->
+<section class="slide section">
+  <div class="slide-inner">
+    <div class="act-label">▌ DAY 01 · PART 02</div>
+    <h1>Agenti 🤖</h1>
+    <div class="subtitle">LLM s rukama</div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────────
+     SLIDE 18 · Co je LLM?
+     ───────────────────────────────────────────────────────── -->
+<section class="slide">
+  <div class="slide-inner">
+    <span class="kicker">🧠 LARGE LANGUAGE MODEL</span>
+    <h2>Co je LLM?</h2>
+    <p class="lead">Pravděpodobnostní model natrénovaný na obřím množství textu (knihy, web, kód, …) — rozumí jazyku a generuje text.</p>
+
+    <div class="two-col">
+      <div>
+        <h3>▸ Známé LLM</h3>
+        <ul>
+          <li><strong>Claude</strong> (Anthropic)</li>
+          <li><strong>GPT-4 / GPT-5</strong> (OpenAI)</li>
+          <li><strong>Gemini</strong> (Google)</li>
+          <li><strong>Llama</strong> (Meta · open-source)</li>
+        </ul>
+      </div>
+      <div>
+        <h3>▸ Mentální model</h3>
+        <div class="callout">
+          <strong>LLM = komprimovaný soubor.</strong><br>
+          ~5 GB váhy (jako jeden film) → značná část toho, co lidstvo napsalo. 📚
+        </div>
+      </div>
+    </div>
+
+    <p>LLM sám o sobě jen mluví. <strong>Coding agent = LLM s rukama.</strong> 🦾</p>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────────
+     SLIDE 18a · Jak LLM mluví (next-token prediction)
+     ───────────────────────────────────────────────────────── -->
+<section class="slide">
+  <div class="slide-inner">
+    <span class="kicker">⚙️ MECHANISM</span>
+    <h2>Jak LLM mluví</h2>
+
+    <p>LLM = <strong>předpovídá další slovo</strong>. Spočítá pravděpodobnost každého možného slova.</p>
+
+<pre>"Praha je hlavní město ____"
+
+LLM spočítá pravděpodobnosti:
+  <span class="t">"České"</span>    <span class="n">87%</span>
+  <span class="t">"Česka"</span>     <span class="n">8%</span>
+  <span class="t">"Evropy"</span>    <span class="n">3%</span>
+  <span class="t">"krásné"</span>    <span class="n">1%</span>
+
+→ vybere <span class="t">"České"</span>
+→ opakuje: <span class="s">"České republiky."</span></pre>
+
+    <p>Slovo po slově. Loop končí, když LLM vybere <strong>speciální značku konce</strong> — to znamená „konec, hotovo“.</p>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────────
+     SLIDE 18b · Co LLM neumí (limits & hallucinations)
+     ───────────────────────────────────────────────────────── -->
+<section class="slide">
+  <div class="slide-inner">
+    <span class="kicker">⚠️ LIMITS</span>
+    <h2>Co LLM neumí</h2>
+
+    <ul>
+      <li>❌ Nezná, co se stalo po datu trénování (cutoff cca 2024)</li>
+      <li>❌ Vymyslí si autora, URL, citaci — sebevědomě a špatně (<strong>halucinace</strong>)</li>
+      <li>❌ Špatně počítá pod tlakem (math errors)</li>
+      <li>❌ Nezná tvoje data, dokud mu je nedáš</li>
+    </ul>
+
+    <div class="callout">Vždycky ověřuj zdroje. Hlavně URL a citace.</div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────────
+     SLIDE 18c · Tokeny a kontext
+     ───────────────────────────────────────────────────────── -->
+<section class="slide">
+  <div class="slide-inner">
+    <span class="kicker">📏 TOKENS</span>
+    <h2>Tokeny a kontext</h2>
+
+    <p>1 token ≈ 4 znaky / 0.75 slova</p>
+<pre>"Praha"            = 1 token
+"Czechitas"        = 3 tokeny
+"😂"                = 1 token</pre>
+
+    <p><strong>Context window</strong> = kolik tokenů LLM "vidí" najednou:</p>
+    <ul>
+      <li>Claude Opus 4.7: <strong>1 000 000</strong> tokenů (~1 500 stran textu)</li>
+      <li>GLM 5.1: <strong>203 000</strong> tokenů</li>
+    </ul>
+
+    <div class="callout">Když ti agent zapomene, došlo místo v <strong>context window</strong> — ne output tokeny.</div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────────
+     SLIDE 18d · Co je agent? (LLM + tools concept)
+     ───────────────────────────────────────────────────────── -->
+<section class="slide">
+  <div class="slide-inner">
+    <span class="kicker">🤖 AGENT</span>
+    <h2>Co je agent?</h2>
+
+    <p>LLM sám neumí nic — jen mluvit.</p>
+    <p class="lead"><strong>Agent = LLM + nástroje (tools).</strong></p>
+
+    <p>Nástroj = funkce, kterou LLM může zavolat:</p>
+    <div class="cards">
+      <div class="card"><div class="label">🌐 WEB</div><div class="value">vyhledávač, stažení stránky</div></div>
+      <div class="card"><div class="label">🐍 KÓD</div><div class="value">Python runtime, spustit skript</div></div>
+      <div class="card"><div class="label">📁 SOUBORY</div><div class="value">file system, číst, psát</div></div>
+      <div class="card"><div class="label">🗜️ DATA</div><div class="value">databáze, API, e-mail</div></div>
+    </div>
+
+    <p>Loop: <strong>LLM vybere nástroj → runtime ho spustí → výsledek se vrátí LLM → LLM pokračuje.</strong></p>
+    <p>Tak se z mluvy stane akce.</p>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────────
+     SLIDE 19 · Co je coding agent?
+     ───────────────────────────────────────────────────────── -->
+<section class="slide">
+  <div class="slide-inner">
+    <span class="kicker">🤖 CODING AGENT</span>
+    <h2>Co je coding agent?</h2>
+
+    <div class="flow">
+      <div class="flow-step">📝 <strong>Autocomplete</strong><br><span style="font-size: 15px;color:var(--fg-3)">doplní řádek</span></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step cyan">💬 <strong>Chat</strong><br><span style="font-size: 15px;color:var(--fg-3)">odpoví na otázku</span></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step amber">🤖 <strong>AGENT</strong><br><span style="font-size: 15px;color:var(--amber)">udělá práci</span></div>
+    </div>
+
+    <p><strong>Coding agent = LLM specializovaný na kód.</strong></p>
+    <ul>
+      <li>Trénovaný i na obřím množství kódu (GitHub, dokumentace)</li>
+      <li>Speciální nástroje pro práci s projektem: <code>read</code>, <code>edit</code>, <code>bash</code>, <code>grep</code>, <code>glob</code></li>
+    </ul>
+
+    <div class="callout">Není to chatbot. Je to <strong>kolega, který tu práci doopravdy udělá.</strong></div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────────
+     SLIDE 20 · Co všechno vidí (a umí) — diagram
+     ───────────────────────────────────────────────────────── -->
+<section class="slide">
+  <div class="slide-inner">
+    <span class="kicker">👁️ AGENT CAPABILITIES</span>
+    <h2>Co všechno vidí (a umí)</h2>
+
+    <svg class="diagram" viewBox="0 0 900 360" width="900">
+      <!-- Central agent -->
+      <rect class="box amber" x="370" y="150" width="160" height="60" />
+      <text x="450" y="185" text-anchor="middle" class="label-amber" font-size="21">🤖 AGENT</text>
+
+      <!-- 4 surrounding capabilities -->
+      <rect class="box cyan" x="80" y="40" width="200" height="70"/>
+      <text x="180" y="68" text-anchor="middle" class="label-cyan" font-size="16">📁 SOUBORY</text>
+      <text x="180" y="90" text-anchor="middle" font-size="13">číst · psát · mazat</text>
+
+      <rect class="box cyan" x="620" y="40" width="200" height="70"/>
+      <text x="720" y="68" text-anchor="middle" class="label-cyan" font-size="16">⌨️ TERMINÁL</text>
+      <text x="720" y="90" text-anchor="middle" font-size="13">jakýkoli bash příkaz</text>
+
+      <rect class="box cyan" x="80" y="250" width="200" height="70"/>
+      <text x="180" y="278" text-anchor="middle" class="label-cyan" font-size="16">🌐 INTERNET</text>
+      <text x="180" y="300" text-anchor="middle" font-size="13">curl · pip · URL</text>
+
+      <rect class="box cyan" x="620" y="250" width="200" height="70"/>
+      <text x="720" y="278" text-anchor="middle" class="label-cyan" font-size="16">🔌 MCP SERVERY</text>
+      <text x="720" y="300" text-anchor="middle" font-size="13">Snowflake · GitHub · …</text>
+
+      <!-- Lines connecting -->
+      <line class="dim" x1="280" y1="75" x2="370" y2="160"/>
+      <line class="dim" x1="620" y1="75" x2="530" y2="160"/>
+      <line class="dim" x1="280" y1="285" x2="370" y2="200"/>
+      <line class="dim" x1="620" y1="285" x2="530" y2="200"/>
+    </svg>
+
+    <p>Cokoliv umíš ty v terminálu, umí i on. Ale <strong>má omezenou paměť a nemá duši — a tudíž vkus.</strong></p>
+    <p style="color:var(--fg-3);font-size: 21px;">Stáhnout knihovnu, smazat složku, poslat HTTP request, dotázat se databáze…</p>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────────
+     SLIDE 21 · Jak to vypadá v praxi (loop diagram)
+     ───────────────────────────────────────────────────────── -->
+<section class="slide">
+  <div class="slide-inner">
+    <span class="kicker">🔄 AGENT LOOP</span>
+    <h2>Jak to vypadá v praxi</h2>
+
+<pre><span class="c">You:</span> Napiš mi skript co vytáhne data z Weather API,
+     uloží to do CSV, a udělá z toho graf teplot
+     za posledních 7 dní.
+
+<span class="c">Agent:</span>
+  <span class="n">1.</span> Píše Python skript          📝
+  <span class="n">2.</span> Spouští ho                  ▶️
+  <span class="n">3.</span> Vidí chybu → opravuje      🔧
+  <span class="n">4.</span> Spouští znovu              🔁
+  <span class="n">5.</span> Hotovo. Tady máš graph.png ✅</pre>
+
+    <svg class="diagram" viewBox="0 0 700 220" width="700">
+      <!-- Loop -->
+      <circle cx="350" cy="110" r="85" fill="none" stroke="#ff9c4a" stroke-width="1" stroke-dasharray="4 4"/>
+
+      <rect class="box amber" x="290" y="20" width="120" height="40"/>
+      <text x="350" y="45" text-anchor="middle" class="label-amber" font-size="15">📝 WRITE</text>
+
+      <rect class="box amber" x="440" y="90" width="120" height="40"/>
+      <text x="500" y="115" text-anchor="middle" class="label-amber" font-size="15">▶️ RUN</text>
+
+      <rect class="box amber" x="290" y="160" width="120" height="40"/>
+      <text x="350" y="185" text-anchor="middle" class="label-amber" font-size="15">👁️ READ</text>
+
+      <rect class="box amber" x="140" y="90" width="120" height="40"/>
+      <text x="200" y="115" text-anchor="middle" class="label-amber" font-size="15">🔧 FIX</text>
+
+      <!-- arrows -->
+      <path class="arrow" d="M 410 35 Q 470 50 480 90" marker-end="url(#arr2)"/>
+      <path class="arrow" d="M 480 130 Q 470 170 410 180" marker-end="url(#arr2)"/>
+      <path class="arrow" d="M 290 180 Q 220 170 220 130" marker-end="url(#arr2)"/>
+      <path class="arrow" d="M 220 90 Q 220 50 290 40" marker-end="url(#arr2)"/>
+      <defs>
+        <marker id="arr2" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+          <polygon points="0 0, 9 3, 0 6" fill="#ff9c4a"/>
+        </marker>
+      </defs>
+    </svg>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────────
+     SLIDE 21b · Coding agent hands-on (transition to Ilja)
+     ───────────────────────────────────────────────────────── -->
+<section class="slide section">
+  <div class="slide-inner">
+    <div class="act-label">▌ HANDS-ON</div>
+    <h1>Coding agent ⚡</h1>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────────
+     SLIDE 34 · Day 2 section divider
+     ───────────────────────────────────────────────────────── -->
+<section class="slide section">
+  <div class="slide-inner">
+    <div class="act-label">▌ DAY 02 · OPERATION BRIEFING</div>
+    <h1>MCP + Evals 🔌</h1>
+    <div class="subtitle">USB-C pro AI &amp; jak ověřit, že to funguje</div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────────
+     SLIDE 36 · Co je MCP?
+     ───────────────────────────────────────────────────────── -->
+<section class="slide">
+  <div class="slide-inner">
+    <span class="kicker">🔌 PROTOCOL</span>
+    <h2>Co je MCP?</h2>
+    <p class="lead"><strong>M</strong>odel <strong>C</strong>ontext <strong>P</strong>rotocol</p>
+    <p style="font-size: 32px;color:var(--amber);">"USB-C pro AI" 🔌</p>
+
+    <p>Jeden standard. Připojíš agenta k:</p>
+    <div class="cards">
+      <div class="card"><div class="label">📊 DATABÁZI</div><div class="value">Snowflake, Postgres, MongoDB…</div></div>
+      <div class="card"><div class="label">🌐 API</div><div class="value">REST, GraphQL, webhooks…</div></div>
+      <div class="card"><div class="label">📁 SOUBORŮM</div><div class="value">file system, S3, Drive…</div></div>
+      <div class="card"><div class="label">🐙 SLUŽBÁM</div><div class="value">GitHub, Slack, Notion…</div></div>
+    </div>
+
+    <p><strong>Bez custom kódu pro každou integraci.</strong></p>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────────
+     SLIDE 37 · Před MCP (tangle diagram)
+     ───────────────────────────────────────────────────────── -->
+<section class="slide">
+  <div class="slide-inner">
+    <span class="kicker">❌ BEFORE</span>
+    <h2>Před MCP</h2>
+
+    <svg class="diagram" viewBox="0 0 900 320" width="900">
+      <!-- Agents on left -->
+      <rect class="box amber" x="40" y="40" width="140" height="50"/>
+      <text x="110" y="70" text-anchor="middle" class="label-amber">🤖 Agent A</text>
+      <rect class="box amber" x="40" y="130" width="140" height="50"/>
+      <text x="110" y="160" text-anchor="middle" class="label-amber">🤖 Agent B</text>
+      <rect class="box amber" x="40" y="220" width="140" height="50"/>
+      <text x="110" y="250" text-anchor="middle" class="label-amber">🤖 Agent C</text>
+
+      <!-- Services on right -->
+      <rect class="box cyan" x="720" y="20" width="140" height="50"/>
+      <text x="790" y="50" text-anchor="middle" class="label-cyan">📊 Snowflake</text>
+      <rect class="box cyan" x="720" y="90" width="140" height="50"/>
+      <text x="790" y="120" text-anchor="middle" class="label-cyan">🐙 GitHub</text>
+      <rect class="box cyan" x="720" y="160" width="140" height="50"/>
+      <text x="790" y="190" text-anchor="middle" class="label-cyan">💬 Slack</text>
+      <rect class="box cyan" x="720" y="230" width="140" height="50"/>
+      <text x="790" y="260" text-anchor="middle" class="label-cyan">📁 Drive</text>
+
+      <!-- Spaghetti lines -->
+      <line class="dim" stroke="#ff5252" x1="180" y1="65" x2="720" y2="45"/>
+      <line class="dim" stroke="#ff5252" x1="180" y1="65" x2="720" y2="115"/>
+      <line class="dim" stroke="#ff5252" x1="180" y1="65" x2="720" y2="185"/>
+      <line class="dim" stroke="#ff5252" x1="180" y1="65" x2="720" y2="255"/>
+      <line class="dim" stroke="#ff5252" x1="180" y1="155" x2="720" y2="45"/>
+      <line class="dim" stroke="#ff5252" x1="180" y1="155" x2="720" y2="115"/>
+      <line class="dim" stroke="#ff5252" x1="180" y1="155" x2="720" y2="185"/>
+      <line class="dim" stroke="#ff5252" x1="180" y1="155" x2="720" y2="255"/>
+      <line class="dim" stroke="#ff5252" x1="180" y1="245" x2="720" y2="45"/>
+      <line class="dim" stroke="#ff5252" x1="180" y1="245" x2="720" y2="115"/>
+      <line class="dim" stroke="#ff5252" x1="180" y1="245" x2="720" y2="185"/>
+      <line class="dim" stroke="#ff5252" x1="180" y1="245" x2="720" y2="255"/>
+
+      <text x="450" y="305" text-anchor="middle" fill="#ff5252" font-size="16">N × M custom integrací</text>
+    </svg>
+
+    <p style="text-align:center;color:var(--red);font-size: 25px;"><strong>Každá integrace jiná. Každou musíš psát.</strong> 😩</p>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────────
+     SLIDE 38 · Po MCP (hub diagram)
+     ───────────────────────────────────────────────────────── -->
+<section class="slide">
+  <div class="slide-inner">
+    <span class="kicker">✅ AFTER</span>
+    <h2>Po MCP</h2>
+
+    <svg class="diagram" viewBox="0 0 900 320" width="900">
+      <!-- Agents on left -->
+      <rect class="box amber" x="40" y="40" width="140" height="50"/>
+      <text x="110" y="70" text-anchor="middle" class="label-amber">🤖 Agent A</text>
+      <rect class="box amber" x="40" y="130" width="140" height="50"/>
+      <text x="110" y="160" text-anchor="middle" class="label-amber">🤖 Agent B</text>
+      <rect class="box amber" x="40" y="220" width="140" height="50"/>
+      <text x="110" y="250" text-anchor="middle" class="label-amber">🤖 Agent C</text>
+
+      <!-- MCP hub in middle -->
+      <rect class="box green" x="380" y="105" width="140" height="100" rx="0"/>
+      <text x="450" y="145" text-anchor="middle" fill="#4dd072" font-size="23" font-weight="700">MCP</text>
+      <text x="450" y="170" text-anchor="middle" font-size="14">single protocol</text>
+
+      <!-- Services on right -->
+      <rect class="box cyan" x="720" y="20" width="140" height="50"/>
+      <text x="790" y="50" text-anchor="middle" class="label-cyan">📊 Snowflake</text>
+      <rect class="box cyan" x="720" y="90" width="140" height="50"/>
+      <text x="790" y="120" text-anchor="middle" class="label-cyan">🐙 GitHub</text>
+      <rect class="box cyan" x="720" y="160" width="140" height="50"/>
+      <text x="790" y="190" text-anchor="middle" class="label-cyan">💬 Slack</text>
+      <rect class="box cyan" x="720" y="230" width="140" height="50"/>
+      <text x="790" y="260" text-anchor="middle" class="label-cyan">📁 Drive</text>
+
+      <!-- Clean lines -->
+      <line class="arrow" x1="180" y1="65" x2="380" y2="135"/>
+      <line class="arrow" x1="180" y1="155" x2="380" y2="155"/>
+      <line class="arrow" x1="180" y1="245" x2="380" y2="175"/>
+      <line class="arrow" x1="520" y1="125" x2="720" y2="45"/>
+      <line class="arrow" x1="520" y1="145" x2="720" y2="115"/>
+      <line class="arrow" x1="520" y1="165" x2="720" y2="185"/>
+      <line class="arrow" x1="520" y1="185" x2="720" y2="255"/>
+
+      <text x="450" y="305" text-anchor="middle" fill="#4dd072" font-size="16">1 protokol · N serverů</text>
+    </svg>
+
+    <p style="text-align:center;color:var(--green);font-size: 25px;"><strong>Agent se připojí ke všem stejně.</strong> ✨</p>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────────
+     SLIDE 39 · Jak MCP funguje
+     ───────────────────────────────────────────────────────── -->
+<section class="slide">
+  <div class="slide-inner">
+    <span class="kicker">🔧 PROTOCOL DETAILS</span>
+    <h2>Jak MCP funguje</h2>
+
+    <svg class="diagram" viewBox="0 0 800 200" width="800">
+      <rect class="box amber" x="60" y="60" width="200" height="80"/>
+      <text x="160" y="95" text-anchor="middle" class="label-amber" font-size="21">🤖 AGENT</text>
+      <text x="160" y="118" text-anchor="middle" font-size="14">(host / klient)</text>
+
+      <line class="arrow" x1="270" y1="90" x2="530" y2="90" marker-end="url(#arr3)"/>
+      <line class="arrow" x1="530" y1="110" x2="270" y2="110" marker-end="url(#arr3)"/>
+      <text x="400" y="75" text-anchor="middle" font-size="14" class="label-mute">tools/list · tools/call</text>
+      <text x="400" y="135" text-anchor="middle" font-size="14" class="label-cyan">JSON-RPC</text>
+
+      <rect class="box cyan" x="540" y="60" width="200" height="80"/>
+      <text x="640" y="95" text-anchor="middle" class="label-cyan" font-size="21">🔌 MCP SERVER</text>
+      <text x="640" y="118" text-anchor="middle" font-size="14">(Snowflake)</text>
+
+      <defs>
+        <marker id="arr3" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+          <polygon points="0 0, 9 3, 0 6" fill="#ff9c4a"/>
+        </marker>
+      </defs>
+    </svg>
+
+    <ul>
+      <li>Agent se zeptá: <em>"Co umíš?"</em> → server vrátí seznam tools</li>
+      <li>Agent zavolá: <em>"Spusť SQL query"</em> → server provede, vrátí výsledek</li>
+      <li>Transport: <strong>stdio</strong> (lokálně) nebo <strong>HTTP</strong> (vzdáleně)</li>
+    </ul>
+
+    <p style="color:var(--fg-3);">Stejný pattern pro všechno. 🧩</p>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────────
+     SLIDE 39b · Co MCP nabízí (primitives)
+     ───────────────────────────────────────────────────────── -->
+<section class="slide">
+  <div class="slide-inner">
+    <span class="kicker">🧱 PRIMITIVES</span>
+    <h2>Co MCP nabízí</h2>
+    <p>MCP server může klientovi (agentovi) nabídnout <strong>3 věci</strong>:</p>
+
+    <table>
+      <thead><tr><th style="width:24%">Primitive</th><th>Co to je</th><th style="width:22%">Kdo to spouští</th></tr></thead>
+      <tbody>
+        <tr><td><strong>🔧 Tools</strong></td><td>funkce, které agent volá <span style="color:var(--fg-3)">(<code>execute_query(...)</code>)</span></td><td><span style="color:var(--amber)">model</span></td></tr>
+        <tr><td><strong>📄 Resources</strong></td><td>data, která agent čte <span style="color:var(--fg-3)">(tabulka, dokument, soubor)</span></td><td><span style="color:var(--cyan)">app</span></td></tr>
+        <tr><td><strong>💬 Prompts</strong></td><td>připravené šablony příkazů <span style="color:var(--fg-3)">(slash commands)</span></td><td><span style="color:var(--green)">uživatel</span></td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout cyan"><strong>Tools jsou nejčastější.</strong> Většina MCP serverů dnes nabízí primárně je.</div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────────
+     SLIDE 39c · Reálné MCP servery (ecosystem)
+     ───────────────────────────────────────────────────────── -->
+<section class="slide">
+  <div class="slide-inner">
+    <span class="kicker">🛍️ ECOSYSTEM</span>
+    <h2>Reálné MCP servery</h2>
+    <p>Pár populárních z ekosystému 2026:</p>
+
+    <div class="cards">
+      <div class="card"><div class="label">📊 SNOWFLAKE</div><div class="value">SQL přes přirozený jazyk</div></div>
+      <div class="card"><div class="label">🐙 GITHUB</div><div class="value">PRs, issues, code search</div></div>
+      <div class="card"><div class="label">🕷️ APIFY</div><div class="value">tisíce scraperů na web data</div></div>
+      <div class="card"><div class="label">🎭 PLAYWRIGHT</div><div class="value">browser automation</div></div>
+      <div class="card"><div class="label">💬 SLACK</div><div class="value">posílání zpráv, hledání</div></div>
+      <div class="card"><div class="label">📁 FILESYSTEM</div><div class="value">lokální soubory</div></div>
+    </div>
+
+    <div class="callout cyan">Ekosystém má přes <strong>17 000 serverů</strong>. Najdeš na <code>smithery.ai</code> · <code>mcp.so</code> · <code>pulsemcp.com</code></div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────────
+     SLIDE 39d · Local vs remote (stdio vs HTTP)
+     ───────────────────────────────────────────────────────── -->
+<section class="slide">
+  <div class="slide-inner">
+    <span class="kicker">🔌 TRANSPORT</span>
+    <h2>Local vs remote</h2>
+    <p>Dva způsoby, jak se klient (agent) připojí k MCP serveru:</p>
+
+    <div class="two-col">
+      <div>
+        <h3>🖥️ STDIO</h3>
+        <p>Lokální proces.</p>
+        <ul>
+          <li>Spouští se jako subprocess</li>
+          <li>Komunikace přes <code>stdin</code> / <code>stdout</code></li>
+          <li><code>npx</code>, <code>python</code>, binárka</li>
+        </ul>
+      </div>
+      <div>
+        <h3>🌐 HTTP</h3>
+        <p>Vzdálený endpoint (URL).</p>
+        <ul>
+          <li>Sdílený, škálovatelný</li>
+          <li>Auth přes OAuth</li>
+          <li><code>mcp.apify.com</code></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="callout">Pro začátek: <strong>stdio</strong>. Když potřebuješ sdílení nebo škálu: <strong>HTTP</strong>.</div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────────
+     SLIDE 39e · Postav si vlastní MCP server (DIY)
+     ───────────────────────────────────────────────────────── -->
+<section class="slide">
+  <div class="slide-inner">
+    <span class="kicker">🛠️ DIY</span>
+    <h2>Postav si vlastní MCP server</h2>
+    <p>30 řádků Pythonu. Stačí.</p>
+
+<pre><span class="k">from</span> mcp.server.fastmcp <span class="k">import</span> FastMCP
+
+app = FastMCP(<span class="s">"my-tools"</span>)
+
+<span class="d">@app.tool()</span>
+<span class="k">def</span> <span class="t">add</span>(a: <span class="t">int</span>, b: <span class="t">int</span>) -&gt; <span class="t">int</span>:
+    <span class="s">"""Sečte dvě čísla."""</span>
+    <span class="k">return</span> a + b
+
+<span class="d">@app.tool()</span>
+<span class="k">def</span> <span class="t">get_weather</span>(city: <span class="t">str</span>) -&gt; <span class="t">str</span>:
+    <span class="s">"""Vrátí počasí pro město."""</span>
+    <span class="k">return</span> fetch_weather(city)
+
+app.run()</pre>
+
+    <p>Docstring popisuje, co tool dělá <span style="color:var(--fg-3)">— LLM si ho přečte a rozhodne, kdy ho použít</span>.</p>
+
+    <div class="callout cyan"><strong>Tvoje API se stane MCP serverem v jednom odpoledni.</strong></div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────────
+     SLIDE 39f · Snowflake MCP hands-on (transition to Tana)
+     ───────────────────────────────────────────────────────── -->
+<section class="slide section">
+  <div class="slide-inner">
+    <div class="act-label">▌ HANDS-ON</div>
+    <h1>Snowflake MCP ⚡</h1>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────────
+     SLIDE 45b · Day 02 Part 02 divider (Evals)
+     ───────────────────────────────────────────────────────── -->
+<section class="slide section">
+  <div class="slide-inner">
+    <div class="act-label">▌ DAY 02 · PART 02</div>
+    <h1>Evals ⚖️</h1>
+    <div class="subtitle">Důvěřuj, ale ověřuj</div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────────
+     SLIDE 45b1 · Jak se testuje software (testing intro)
+     ───────────────────────────────────────────────────────── -->
+<section class="slide">
+  <div class="slide-inner">
+    <span class="kicker">🧪 SOFTWARE TESTING</span>
+    <h2>Jak se testuje software</h2>
+
+    <p><strong>Bez testů:</strong> spustíš a hledáš co nefunguje ručně.</p>
+    <p><strong>S testy:</strong> spustíš <code>pytest</code>, automaticky se to ověří.</p>
+
+    <h3>Tři úrovně testů</h3>
+    <ul>
+      <li>🧱 <strong>Unit</strong> — testuje jednu funkci. Rychlé. Píšeš jich hodně.</li>
+      <li>🔗 <strong>Integration</strong> — testuje že komponenty mluví spolu. Středně rychlé.</li>
+      <li>🌐 <strong>End-to-end</strong> — testuje celou aplikaci jako uživatel. Pomalé.</li>
+    </ul>
+
+    <div class="callout">Začneme s <strong>unit testy</strong>.</div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────────
+     SLIDE 45b2 · Unit test — příklad
+     ───────────────────────────────────────────────────────── -->
+<section class="slide">
+  <div class="slide-inner">
+    <span class="kicker">🧱 UNIT TEST</span>
+    <h2>Unit test — příklad</h2>
+
+<pre><span class="c"># Funkce, kterou testuješ:</span>
+<span class="k">def</span> <span class="t">cena_s_dph</span>(cena: <span class="t">float</span>, sazba: <span class="t">float</span> = <span class="n">0.21</span>) -&gt; <span class="t">float</span>:
+    <span class="k">return</span> cena * (<span class="n">1</span> + sazba)
+
+<span class="c"># Test:</span>
+<span class="k">def</span> <span class="t">test_cena_s_dph</span>():
+    <span class="k">assert</span> cena_s_dph(<span class="n">100</span>) == <span class="n">121</span>
+    <span class="k">assert</span> cena_s_dph(<span class="n">100</span>, <span class="n">0.10</span>) == <span class="n">110</span>
+    <span class="k">assert</span> cena_s_dph(<span class="n">0</span>) == <span class="n">0</span>
+
+<span class="c"># Spustíš:</span>
+$ pytest
+test_cena_s_dph PASSED ✅</pre>
+
+    <p>Stejný vstup → stejný výstup. <strong>Deterministicky.</strong></p>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────────
+     SLIDE 45b2b · Integration & E2E — výhled
+     ───────────────────────────────────────────────────────── -->
+<section class="slide">
+  <div class="slide-inner">
+    <span class="kicker">🔗 INTEGRATION &amp; E2E</span>
+    <h2>Integration &amp; E2E — výhled</h2>
+
+    <p>🔗 <strong>Integration</strong> — testuje že komponenty fungují spolu (např. funkce + databáze):</p>
+<pre><span class="k">def</span> <span class="t">test_zaloz_objednavku</span>():
+    order_id = vytvor_objednavku(db, customer_id=<span class="n">1</span>)
+    <span class="k">assert</span> db.find_order(order_id) <span class="k">is not None</span></pre>
+
+    <p>🌐 <strong>End-to-end</strong> — testuje aplikaci jako uživatel (browser):</p>
+<pre><span class="k">def</span> <span class="t">test_objednavka</span>():
+    page.goto(<span class="s">"/eshop"</span>)
+    page.click(<span class="s">"Objednat"</span>)
+    <span class="k">assert</span> <span class="s">"/dekujeme"</span> <span class="k">in</span> page.url</pre>
+
+    <p>Princip stejný jako unit test — <code>assert</code> na očekávaný výsledek. Jen testuješ víc kódu najednou.</p>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────────
+     SLIDE 45b3 · Jak ale testovat AI? (bridge)
+     ───────────────────────────────────────────────────────── -->
+<section class="slide">
+  <div class="slide-inner">
+    <span class="kicker">🤔 BUT AI…</span>
+    <h2>Jak ale testovat AI?</h2>
+
+<pre><span class="c"># Unit test:</span>
+<span class="k">assert</span> secti(<span class="n">2</span>, <span class="n">3</span>) == <span class="n">5</span>     <span class="c"># vždycky 5 ✓</span>
+
+<span class="c"># AI agent:</span>
+agent.dotaz(<span class="s">"Kolik mám zákazníků?"</span>)
+→ <span class="s">"Máte 10 zákazníků."</span>           <span class="c"># pondělí</span>
+→ <span class="s">"10 zákazníků máte v DB."</span>     <span class="c"># úterý</span>
+→ <span class="s">"Celkem 10 customers."</span>         <span class="c"># středa</span></pre>
+
+    <p>Stejná otázka. <strong>Tři různé odpovědi. Všechny správně.</strong></p>
+    <p>Jak napíšeš <code>assert</code>?</p>
+
+    <div class="callout cyan">→ Potřebuješ jiný nástroj. <strong>To je eval.</strong></div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────────
+     SLIDE 45c · Co je eval? (simplified — just definition)
+     ───────────────────────────────────────────────────────── -->
+<section class="slide">
+  <div class="slide-inner">
+    <span class="kicker">⚖️ EVAL</span>
+    <h2>Co je eval?</h2>
+    <p class="lead">Eval = automatický test kvality AI výstupu.</p>
+
+    <ul>
+      <li>Místo <strong>PASS / FAIL</strong> → skóre (0–10) nebo PASS / FAIL</li>
+      <li>Místo <em>„kód funguje“</em> → <em>„agent dělá dobrou práci“</em></li>
+    </ul>
+
+    <div class="callout cyan"><strong>Měříš jak dobré to je</strong>, ne jen jestli to nepadá.</div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────────
+     SLIDE 45d · Test vs Eval
+     ───────────────────────────────────────────────────────── -->
+<section class="slide">
+  <div class="slide-inner">
+    <span class="kicker">⚖️ COMPARE</span>
+    <h2>Test vs Eval</h2>
+    <table>
+      <thead><tr><th></th><th>Unit test</th><th>Eval</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Cíl</strong></td><td>správnost</td><td>kvalita</td></tr>
+        <tr><td><strong>Výstup</strong></td><td>PASS / FAIL</td><td>skóre</td></tr>
+        <tr><td><strong>Determinismus</strong></td><td>stejný vstup = stejný výstup</td><td>různý výstup každý run</td></tr>
+        <tr><td><strong>Rychlost</strong></td><td>milisekundy</td><td>sekundy (LLM call)</td></tr>
+        <tr><td><strong>Cena</strong></td><td>zdarma</td><td>$0.001 – $0.10 / call</td></tr>
+        <tr><td><strong>Co testuje</strong></td><td>funkci</td><td>model + prompt + data</td></tr>
+      </tbody>
+    </table>
+    <p>Test ti řekne: <em>"kód funguje."</em><br>Eval ti řekne: <em>"agent dělá dobrou práci."</em></p>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────────
+     SLIDE 45e · Z čeho se eval skládá
+     ───────────────────────────────────────────────────────── -->
+<section class="slide">
+  <div class="slide-inner">
+    <span class="kicker">🧩 ANATOMY</span>
+    <h2>Z čeho se eval skládá</h2>
+
+    <div class="cards">
+      <div class="card"><div class="label">🗂️ TEST DATASET</div><div class="value">sada vstupů s očekávanou odpovědí<br><span style="color:var(--fg-3)">(otázka → reference SQL)</span></div></div>
+      <div class="card"><div class="label">🤖 GENERATOR</div><div class="value">tvůj agent / LLM<br><span style="color:var(--fg-3)">(otázka → vygenerovaný SQL)</span></div></div>
+      <div class="card"><div class="label">📏 METRIKA</div><div class="value">jak měřit shodu<br><span style="color:var(--fg-3)">(string · result · LLM judge)</span></div></div>
+      <div class="card"><div class="label">📊 AGREGACE</div><div class="value">souhrn napříč případy<br><span style="color:var(--fg-3)">(% pass · průměrné skóre)</span></div></div>
+    </div>
+
+    <div class="callout">100 otázek + agent + metrika → <strong>„87 % správně“</strong>.</div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────────
+     SLIDE 45f · Proč to stavět? (moved from 51 — motivation)
+     ───────────────────────────────────────────────────────── -->
+<section class="slide">
+  <div class="slide-inner">
+    <span class="kicker">💪 WHY BOTHER</span>
+    <h2>Proč to stavět?</h2>
+    <table>
+      <thead><tr><th>Metrika</th><th>Bez evaluace</th><th>S evaluací</th></tr></thead>
+      <tbody>
+        <tr><td>Víš jak dobrý je výstup?</td><td style="color:var(--red)">❌ Ne</td><td style="color:var(--green)">✅ Ano</td></tr>
+        <tr><td>Můžeš iterovat?</td><td style="color:var(--red)">Metodou pokus-omyl</td><td style="color:var(--green)">Data-driven</td></tr>
+        <tr><td>Bezpečnost</td><td style="color:var(--red)">"Snad to nic nerozbije"</td><td style="color:var(--green)">Chytneš to předem</td></tr>
+      </tbody>
+    </table>
+
+    <blockquote style="margin-top:30px;font-size: 28px;">Evaly ti řeknou pravdu o tvém agentovi — žádný jiný způsob to neudělá.</blockquote>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────────
+     SLIDE 46 · SQL Quality Judge intro
+     ───────────────────────────────────────────────────────── -->
+<section class="slide">
+  <div class="slide-inner">
+    <span class="kicker">⚖️ EVALUATION</span>
+    <h2>SQL Quality Judge</h2>
+    <p>Problém: AI generuje SQL. <strong>Je správné?</strong></p>
+    <p>Data tým používá Cortex / ChatGPT na SQL.<br>Jak ověříš, že výstup je OK?</p>
+
+    <div class="two-col">
+      <div class="danger"><strong>❌ Manuálně?</strong> Neškáluje.</div>
+      <div class="danger"><strong>❌ Nedělat nic?</strong> Risk.</div>
+    </div>
+
+    <div class="callout cyan" style="margin-top:30px;font-size: 32px;">→ <strong>Postavíme automatický grader.</strong> ⚖️</div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────────
+     SLIDE 47 · Level 1 · String match
+     ───────────────────────────────────────────────────────── -->
+<section class="slide">
+  <div class="slide-inner">
+    <span class="kicker">🔤 LEVEL 01 · STRING MATCH</span>
+    <h2>Level 1 · String match</h2>
+    <p>Otázka: <em>"Kolik zákazníků je z Prahy?"</em></p>
+<pre>generated = <span class="s">"SELECT COUNT(*) FROM customers WHERE city = 'Praha'"</span>
+expected  = <span class="s">"SELECT COUNT(*) FROM customers WHERE city = 'Praha'"</span>
+
+<span class="k">assert</span> generated == expected</pre>
+
+    <div class="success">✅ <strong>Chytí</strong>: identické query</div>
+    <div class="danger">❌ <strong>Mine</strong>: <code>... WHERE city='praha'...</code> (lowercase, jiné mezery)</div>
+    <div class="danger">❌ <strong>Mine</strong>: <code>SELECT COUNT(customer_id) ...</code> (jiný COUNT, sedí)</div>
+    <div class="danger">❌ <strong>Mine</strong>: přeházené podmínky</div>
+
+    <p style="color:var(--fg-3);font-size: 23px;margin-top:16px;"><strong>K ničemu v reálu.</strong></p>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────────
+     SLIDE 48 · Level 2 · Result match
+     ───────────────────────────────────────────────────────── -->
+<section class="slide">
+  <div class="slide-inner">
+    <span class="kicker">📊 LEVEL 02 · RESULT MATCH</span>
+    <h2>Level 2 · Result match</h2>
+    <p>Spustíme oba SQL a porovnáme výstup.</p>
+<pre>generated_result = run_sql(generated_sql)
+expected_result  = run_sql(expected_sql)
+<span class="c"># např. [(4,)]   — 4 zákazníci z Prahy</span>
+
+<span class="k">assert</span> generated_result == expected_result</pre>
+
+    <div class="success">✅ <strong>Chytí</strong>: query vracející stejná data ve stejných sloupcích</div>
+    <div class="success">✅ <strong>Odolné</strong>: formátování, aliasy, pořadí řádků</div>
+    <div class="danger">❌ <strong>Mine</strong>: extra sloupec navic v SELECT nebo jiné pořadí sloupců</div>
+    <div class="danger">❌ <strong>Mine</strong>: latentní bug — query vrátí správný výsledek náhodou (např. <code>SELECT * FROM products LIMIT 5</code>)</div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────────
+     SLIDE 49 · Level 3 · LLM as judge
+     ───────────────────────────────────────────────────────── -->
+<section class="slide">
+  <div class="slide-inner">
+    <span class="kicker">🧠 LEVEL 03 · LLM AS JUDGE</span>
+    <h2>Level 3 · LLM as judge</h2>
+<pre>judge = SQLJudge()
+verdict = judge.evaluate(question, generated, expected, result)
+
+<span class="c"># → {"score": 8, "verdict": "PASS",</span>
+<span class="c">#     "issues": ["chybí ORDER BY", "extra sloupec product_id"]}</span></pre>
+
+    <div class="success">✅ <strong>Chytí</strong> sémantiku, code smells, edge cases — chápe otázku</div>
+    <div class="warning">⚠️ <strong>Nedeterministický</strong>, pomalejší, dražší</div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────────
+     SLIDE 50 · SQL Quality Judge hands-on (transition to Colab)
+     ───────────────────────────────────────────────────────── -->
+<section class="slide section">
+  <div class="slide-inner">
+    <div class="act-label">▌ HANDS-ON</div>
+    <h1>SQL Quality Judge ⚡</h1>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────────
+     SLIDE 53b · Co jsme se naučili za 2 dny (overall recap)
+     ───────────────────────────────────────────────────────── -->
+<section class="slide">
+  <div class="slide-inner">
+    <span class="kicker">🎓 OVERALL RECAP</span>
+    <h2>Co jsme se naučili</h2>
+
+    <div class="two-col">
+      <div>
+        <h3>📅 Den 1</h3>
+        <ul>
+          <li>🌐 <strong>API</strong> — HTTP, request/response, JSON</li>
+          <li>🐍 První API call v Pythonu</li>
+          <li>🧠 <strong>LLM</strong> = jazyk · <strong>agent</strong> = ruce</li>
+          <li>📄 <code>AGENTS.md</code> — kontext pro agenta</li>
+          <li>🔐 Secrets, approve/deny, bezpečnost</li>
+        </ul>
+      </div>
+      <div>
+        <h3>📅 Den 2</h3>
+        <ul>
+          <li>🔌 <strong>MCP</strong> propojí agenta s daty</li>
+          <li>📊 Přirozený jazyk → SQL přes Snowflake</li>
+          <li>⚖️ <strong>Evaly</strong> — automatická kontrola kvality</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="callout"><strong>API → Agent → MCP → Evals.</strong> Loop se uzavírá. 🔁</div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────────
+     SLIDE 54 · LinkedIn
+     ───────────────────────────────────────────────────────── -->
+<section class="slide">
+  <div class="slide-inner" style="text-align: center; display: flex; flex-direction: column; justify-content: center; min-height: 100%;">
+    <p style="font-size: 1.5rem;"><a href="https://www.linkedin.com/in/doas-jakub-kopecky/" target="_blank">linkedin.com/in/doas-jakub-kopecky</a></p>
+  </div>
+</section>
+
+</main>
+
+<!-- ============ PROGRESS BAR ============ -->
+<div id="progress"></div>
+
+<!-- ============ NAV HINT ============ -->
+<div id="nav-hint"><kbd>←</kbd> <kbd>→</kbd> navigate · <kbd>F</kbd> fullscreen · <kbd>Home</kbd>/<kbd>End</kbd> jump</div>
+
+<!-- ============ JAVASCRIPT ============ -->
+<script>
+(function () {
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const counter = document.getElementById('counter');
+  const progress = document.getElementById('progress');
+  const pad = n => String(n).padStart(3, '0');
+
+  let current = 0;
+
+  function show(i) {
+    i = Math.max(0, Math.min(slides.length - 1, i));
+    slides.forEach((s, idx) => s.classList.toggle('active', idx === i));
+    counter.textContent = `${pad(i + 1)} / ${pad(slides.length)}`;
+    progress.style.width = `${((i + 1) / slides.length) * 100}%`;
+    location.hash = `#${i + 1}`;
+    current = i;
+  }
+
+  // init from hash
+  const initial = parseInt(location.hash.replace('#', ''), 10);
+  show(!isNaN(initial) && initial > 0 ? initial - 1 : 0);
+
+  document.addEventListener('keydown', e => {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+      show(current + 1); e.preventDefault();
+    } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+      show(current - 1); e.preventDefault();
+    } else if (e.key === 'Home') {
+      show(0); e.preventDefault();
+    } else if (e.key === 'End') {
+      show(slides.length - 1); e.preventDefault();
+    } else if (e.key === 'f' || e.key === 'F') {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+      else document.exitFullscreen();
+      e.preventDefault();
+    }
+  });
+
+  // hash change (e.g., manual edit of URL)
+  window.addEventListener('hashchange', () => {
+    const n = parseInt(location.hash.replace('#', ''), 10);
+    if (!isNaN(n) && n > 0 && n - 1 !== current) show(n - 1);
+  });
+})();
+</script>
+
+</body>
+</html>
